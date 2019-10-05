@@ -4,7 +4,9 @@
 
 TicTacToe::TicTacToe()
 {
-
+	//used for second player 
+	
+	myPlayer.player = 'O';
 }
 
 
@@ -18,9 +20,9 @@ TicTacToe::~TicTacToe()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void TicTacToe::initBoard()
 {
-	//system("CLS");
+	UDPClient myUDP;
 	updateBoard();
-	
+	//system("CLS");
 	for (int i = 0; i < 3; i++)
 	{
 		for (int j = 0; j < 3; j++)
@@ -28,13 +30,61 @@ void TicTacToe::initBoard()
 			cout << board[i][j] << " ";
 		}
 		cout << endl;
+		
+		
 	}
-	//lastMove();
 	
+	
+	cout << "Total Moves Made: " << TOTAL_MOVES << endl;
+	cout << "\n";
+	//cout << TOTAL_MOVES << endl;
+	cout << "Total Moves Player 1 (X) Made: " << X_MOVES << endl;
+	cout << "\n";
+	//	cout << X_MOVES << endl;
+	cout << "Total Moves Player 2 (O) Made: " << O_MOVES << endl;
+	//	cout << O_MOVES << endl;
+	
+	cout << "*********************************************************\n" << endl;
+	cout << "\n" << endl;
+	//lastMove();
 }
 
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//This method is to give instructions on how to play the game
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void TicTacToe::instruction(void)
+{
+	printf("Player 1 has X, Player 2 has 0. Choose a cell shown below and play to win \n");
+	printf("____________________________\n");
+	printf("\n\n");
+	printf("\t\t\t   1 |   2   |  3    \n", board[0][0], board[0][1], board[0][2]);
+	printf("\t\t\t  ------------------\n");
+	printf("\t\t\t   4 |   5   |  6    \n", board[1][0], board[1][1], board[1][2]);
+	printf("\t\t\t  ------------------\n");
+	printf("\t\t\t   7 |   8   |  9 \n\n", board[2][0], board[2][1], board[2][2]);
+
+
+	printf("____________________________\n");
+
+
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//This method is to toggle the players turn
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void TicTacToe::TogglePlayer()
+{
+	if (playerTurn == 1)
+	{
+		playerTurn = 2;
+		
+	}
+	else
+	{
+		playerTurn = 1;
+	}
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //This method is to check if one of the players has won
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,34 +200,143 @@ char TicTacToe::checkWin()
 	return '/';
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//This method is to check whose turn it is
+//This method is to recieve the input of the key when the player chooses a position on the board
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-int TicTacToe::CheckTurn(int)
+void TicTacToe::Input()
 {
-	if (playerTurn == 1)
-	{
-		playerTurn = 2;
+	UDPClient myUDP;
+	cin >> d;
 
-	}
-	else
+	//check which fields have been selected 
+	if (playerTurn == 2 && d == 1)
 	{
-		playerTurn = 1;
+		board[0][0] = player2;
+		TOTAL_MOVES++;
+		X_MOVES++;
+		//send message to the server
+		player.X = -1;
+		player.Y = 1;
+	
+		
+		}
+	//board[player.X][player.Y] = player.player2;
+
+
+	
+
+	if (playerTurn == 2 && d == 2)
+	{
+		board[0][1] = player2;
+		TOTAL_MOVES++;
+		X_MOVES++;
+		//send message to the server
+		player.X = 0;
+		player.Y = 1;
 	}
-	return playerTurn;
+
+
+
+	if (playerTurn == 2 && d == 3)
+	{
+		board[0][2] = player2;
+		TOTAL_MOVES++;
+		X_MOVES++;
+		//send message to the server
+		player.X = 1;
+		player.Y = 1;
+	}
+
+
+	if (playerTurn == 2 && d == 4)
+	{
+		board[1][0] = player2;
+		TOTAL_MOVES++;
+		X_MOVES++;
+		player.X = -1;
+		player.Y = 0;
+	}
+
+
+
+
+
+	if (playerTurn == 2 && d == 5)
+	{
+		board[1][1] = player2;
+		TOTAL_MOVES++;
+		X_MOVES++;
+		player.X = 0;
+		player.Y = 0;
+	}
+
+
+
+
+	if (playerTurn == 2 && d == 6)
+	{
+		board[1][2] = player2;
+		TOTAL_MOVES++;
+		X_MOVES++;
+		//send message to the server
+		player.X = 1;
+		player.Y = 0;
+	}
+
+
+	if (playerTurn == 2 && d == 7)
+	{
+		board[2][0] = player2;
+		TOTAL_MOVES++;
+		X_MOVES++;
+		player.X = -1;
+		player.Y = -1;
+	}
+
+
+
+	if (playerTurn == 2 && d == 8)
+	{
+		board[2][1] = player2;
+		TOTAL_MOVES++;
+		X_MOVES++;
+		player.X = 0;
+		player.Y = -1;
+	
+	}
+
+
+
+
+
+	if (playerTurn == 2 && d == 9)
+	{
+		board[2][2] = player2;
+		TOTAL_MOVES++;
+		X_MOVES++;
+		//send message to the server
+		player.X = 1;
+		player.Y = -1;
+	}
+
+
+
 }
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //This method is to start the game loop which will be used in the semaphore
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void TicTacToe::GameLoop()
 {
+	UDPClient myUDP;
+	instruction();
 	initBoard();
-
-	for (int i = 0; i < 9; i++)
-	{
-		
+	
+while(1)
+{
+		Input();
 		initBoard();
-
+		myUDP.SendPacking(player.X,player.Y);
+		//Send the current board to the server
+		
 		if (checkWin() == 'X')
 		{
 			cout << "Player 1 wins!\n";
@@ -191,161 +350,121 @@ void TicTacToe::GameLoop()
 
 
 		}
-		
+	
+		TogglePlayer();
 
+		
 	}
 
 
 	system("pause");
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+//This method is to get the X coordinate of the player
+////////////////////////////////////////////////////////////////////////////////////////////////////
+int TicTacToe::GetPlayerX(void)
+{
+	printf("X: %i", player.X);
+
+	return player.X;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//This method is to get the Y coordinate of the player
+////////////////////////////////////////////////////////////////////////////////////////////////////
+int TicTacToe::GetPlayerY(void)
+{
+	printf("Y: %i", player.Y);
+
+	return player.Y;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//This method is to Set the X coordinate of the player
+////////////////////////////////////////////////////////////////////////////////////////////////////
+int TicTacToe::SetPlayerX(int x)
+{
+	myPlayer.X = x;
+	//printf("X: %d\n", player.X);
+
+	return myPlayer.X;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//This method is to set the Y coordinate of the player
+////////////////////////////////////////////////////////////////////////////////////////////////////
+int TicTacToe::SetPlayerY(int y)
+{
+	//Get the position sent from the client and have the player store it
+	myPlayer.Y = y;
+	//printf("Y: %d\n", player.Y);
+
+	return myPlayer.Y;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
 //This method is to update the board whenever a move has been made
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void TicTacToe::updateBoard()
 {
-	//Check to see whos go is it
-	if (playerTurn == 1)
-	{
-//Its player 1s go
-		if (player.X == -1 && player.Y == 1)
-		{
-			board[0][0] = player.player1;
-		}
-
-
-
-		if (player.X == 0 && player.Y == 1)
-		{
-			board[0][1] = player.player1;
-			//myUDP.SendUpdate2();
-		}
-
-
-
-		if (player.X == 1 && player.Y == 1)
-		{
-			board[0][2] = player.player1;
-		}
-
-
-		if (player.X == -1 && player.Y == 0)
-		{
-			board[1][0] = player.player1;
-
-
-		}
-
-
-
-		if (player.X == 0 && player.Y == 0)
-		{
-			board[1][1] = player.player1;
-
-
-		}
-
-		if (player.X == 1 && player.Y == 0)
-		{
-			board[1][2] = player.player1;
-
-
-		}
-
-
-
-		if (player.X == -1 && player.Y == -1)
-		{
-			//set the symbol
-			board[2][0] = player.player1;
-
-
-		}
-
-
-
-		if (player.X == 0 && player.Y == -1)
-		{
-			board[2][1] = player.player1;
-
-
-		}
-
-
-
-
-
-		if (player.X == -1 && player.Y == 1)
-		{
-			board[2][2] = player.player1;
-
-		}
-	}
-		
-//
-//////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////
 //////Player 2
 //////////////////////////////////////////////////////////////////
-	if(playerTurn == 2)
+	if (myPlayer.X == -1 && myPlayer.Y == 1)
 	{
-	if (player.X == -1 && player.Y == 1)
-	{
-		board[0][0] = player.player2;
+		board[0][0] = myPlayer.player;
 	}
 
 
 
-	if (player.X == 0 && player.Y == 1)
+	if (myPlayer.X == 0 && myPlayer.Y == 1)
 	{
-		board[0][1] = player.player2;
+		board[0][1] = myPlayer.player;
 		//myUDP.SendUpdate2();
 	}
 
 
 
-	if (player.X == 1 && player.Y == 1)
+	if (myPlayer.X == 1 && myPlayer.Y == 1)
 	{
-		board[0][2] = player.player2;
+		board[0][2] = myPlayer.player;
 	}
 
 
-	if (player.X == -1 && player.Y == 0)
+	if (myPlayer.X == -1 && myPlayer.Y == 0)
 	{
-		board[1][0] = player.player2;
+		board[1][0] = myPlayer.player;
 		
 		
 	}
 
 
 
-	if (player.X == 0 && player.Y == 0)
+	if (myPlayer.X == 0 && myPlayer.Y == 0)
 	{
-		board[1][1] = player.player2;
+		board[1][1] = myPlayer.player;
 	
 	
 	}
 
-	if (player.X == 1 && player.Y == 0)
+	if (myPlayer.X == 1 && myPlayer.Y == 0)
 	{
-		board[1][2] = player.player2;
+		board[1][2] = myPlayer.player;
 	
 
 	}
 
 
 
-	if (player.X == -1 && player.Y == -1)
+	if (myPlayer.X == -1 && myPlayer.Y == -1)
 	{
 		//set the symbol
-		board[2][0] = player.player2;
+		board[2][0] = myPlayer.player;
 
 
 	}
 
 
 
-	if (player.X == 0 && player.Y == -1)
+	if (myPlayer.X == 0 && myPlayer.Y == -1)
 	{
-		board[2][1] = player.player2;
+		board[2][1] = myPlayer.player;
 
 
 	}
@@ -354,46 +473,13 @@ void TicTacToe::updateBoard()
 
 
 
-	if (player.X == -1 && player.Y == 1)
+	if (myPlayer.X == -1 && myPlayer.Y == 1)
 	{
-		board[2][2] = player.player2;
+		board[2][2] = myPlayer.player;
 
 	}
-  }
-	
-}
-	
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//This method is to set the player X
-////////////////////////////////////////////////////////////////////////////////////////////////////
-int TicTacToe::SetPlayerX(int x)
-{
-	player.X = x;
-//printf("X: %d\n", player.X);
-	
-	return player.X;
-	
 }
 
-int TicTacToe::SetPlayerY(int y)
-{
-	//Get the position sent from the client and have the player store it
-	player.Y = y;
-	//printf("Y: %d\n", player.Y);
-
-	return player.Y;
-}
-
-int TicTacToe::SetPlayerTurn(int Turn)
-{
-	playerTurn = Turn;
-	
-	return playerTurn;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//This method is to get the last move that was made
-////////////////////////////////////////////////////////////////////////////////////////////////////
 char TicTacToe::lastMove()
 {
 	printf("Last Move made: X: %i , Y: %i\n", player.X, player.Y);
